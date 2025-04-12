@@ -6,6 +6,8 @@ A GitHub Action that enables AI-powered task automation using headless mode of
 [OpenHands](https://github.com/All-Hands-AI/OpenHands). 
 Execute complex tasks using natural language prompts in your GitHub workflows.
 
+Find it on Github Actions Marketplace: [xinbenlv/openhands-ai-action](https://github.com/marketplace/actions/openhands-ai-action)
+
 ## Features
 
 - Execute AI-powered tasks using natural language prompts
