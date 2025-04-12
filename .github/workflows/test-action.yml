@@ -20,8 +20,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Test OpenHands AI Action
-        id: openhands
+      - name: Test OpenHands AI Action with valid API key
+        id: openhands_valid
         uses: ./
         with:
           prompt: "What is 2+2?"
@@ -32,19 +32,34 @@ jobs:
               "TEST_VAR": "test_value"
             }
 
-      - name: Verify outputs
+      - name: Verify outputs with valid API key
         run: |
-          echo "Task ID: ${{ steps.openhands.outputs.task_id }}"
-          echo "Status: ${{ steps.openhands.outputs.status }}"
-          echo "Result: ${{ steps.openhands.outputs.result }}"
+          echo "Task ID: ${{ steps.openhands_valid.outputs.task_id }}"
+          echo "Status: ${{ steps.openhands_valid.outputs.status }}"
+          echo "Result: ${{ steps.openhands_valid.outputs.result }}"
           
           # Basic validation of outputs
-          if [ -z "${{ steps.openhands.outputs.task_id }}" ]; then
+          if [ -z "${{ steps.openhands_valid.outputs.task_id }}" ]; then
             echo "Error: Task ID is empty"
             exit 1
           fi
           
-          if [ -z "${{ steps.openhands.outputs.status }}" ]; then
+          if [ -z "${{ steps.openhands_valid.outputs.status }}" ]; then
             echo "Error: Status is empty"
+            exit 1
+          fi
+
+      - name: Test OpenHands AI Action without API key
+        id: openhands_invalid
+        continue-on-error: true
+        uses: ./
+        with:
+          prompt: "What is 2+2?"
+          log_all_events: "true"
+
+      - name: Verify error without API key
+        run: |
+          if [ "${{ steps.openhands_invalid.outcome }}" != "failure" ]; then
+            echo "Error: Action should have failed without API key"
             exit 1
           fi 

@@ -57,6 +57,14 @@ runs:
     - name: Set up Docker
       uses: docker/setup-buildx-action@v2
 
+    - name: Validate LLM API Key
+      shell: bash
+      run: |
+        if [ -z "${{ inputs.llm_api_key }}" ]; then
+          echo "::error::LLM_API_KEY is required but not provided"
+          exit 1
+        fi
+
     - name: Run OpenHands
       id: openhands
       shell: bash
