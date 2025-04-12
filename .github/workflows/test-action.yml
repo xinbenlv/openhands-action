@@ -5,12 +5,10 @@ on:
     branches: [ main ]
     paths:
       - 'action.yml'
-      - '.github/workflows/test-action.yml'
   pull_request:
     branches: [ main ]
     paths:
       - 'action.yml'
-      - '.github/workflows/test-action.yml'
   workflow_dispatch:
 
 jobs:
@@ -24,37 +22,32 @@ jobs:
         id: openhands_valid
         uses: ./
         with:
-          prompt: "What is 2+2?"
+          prompt: 'Print "hello world" in a hello.md'
           llm_api_key: ${{ secrets.LLM_API_KEY }}
           log_all_events: "true"
-          additional_env: |
-            {
-              "TEST_VAR": "test_value"
-            }
 
-      - name: Verify outputs with valid API key
+      - name: Verify file creation and content
         run: |
-          echo "Task ID: ${{ steps.openhands_valid.outputs.task_id }}"
-          echo "Status: ${{ steps.openhands_valid.outputs.status }}"
-          echo "Result: ${{ steps.openhands_valid.outputs.result }}"
-          
-          # Basic validation of outputs
-          if [ -z "${{ steps.openhands_valid.outputs.task_id }}" ]; then
-            echo "Error: Task ID is empty"
+          if [ ! -f "hello.md" ]; then
+            echo "Error: hello.md file was not created"
             exit 1
           fi
           
-          if [ -z "${{ steps.openhands_valid.outputs.status }}" ]; then
-            echo "Error: Status is empty"
+          if ! grep -q "hello world" "hello.md"; then
+            echo "Error: hello.md does not contain 'hello world'"
+            echo "File contents:"
+            cat "hello.md"
             exit 1
           fi
+          
+          echo "Success: hello.md was created and contains 'hello world'"
 
       - name: Test OpenHands AI Action without API key
         id: openhands_invalid
         continue-on-error: true
         uses: ./
         with:
-          prompt: "What is 2+2?"
+          prompt: 'Print "test" in test.md'
           log_all_events: "true"
 
       - name: Verify error without API key

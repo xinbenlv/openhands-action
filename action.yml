@@ -40,17 +40,6 @@ inputs:
     required: false
     default: '{}'
 
-outputs:
-  task_id:
-    description: 'The unique identifier of the executed task'
-    value: ${{ steps.openhands.outputs.task_id }}
-  status:
-    description: 'The final status of the task execution'
-    value: ${{ steps.openhands.outputs.status }}
-  result:
-    description: 'The result output from the task execution'
-    value: ${{ steps.openhands.outputs.result }}
-
 runs:
   using: 'composite'
   steps:
@@ -91,8 +80,8 @@ runs:
         echo "- LOG_ALL_EVENTS: $LOG_ALL_EVENTS"
         echo "- Additional variables: $EXTRA_ENV_ARGS"
 
-        # Execute the task and capture output
-        OUTPUT=$(docker run -i \
+        # Execute the task
+        docker run -i \
           --pull=always \
           -e SANDBOX_RUNTIME_CONTAINER_IMAGE=${{ inputs.runtime_image }} \
           -e WORKSPACE_MOUNT_PATH=$WORKSPACE_BASE \
@@ -104,14 +93,4 @@ runs:
           -v /var/run/docker.sock:/var/run/docker.sock \
           --add-host host.docker.internal:host-gateway \
           ${{ inputs.openhands_image }} \
-          python -m openhands.core.main -t "${{ inputs.prompt }}")
-
-        # Extract task information from output
-        TASK_ID=$(echo "$OUTPUT" | grep -oP 'Task ID: \K[^\s]+' || echo '')
-        STATUS=$(echo "$OUTPUT" | grep -oP 'Status: \K[^\s]+' || echo '')
-        RESULT=$(echo "$OUTPUT" | grep -oP 'Result: \K.*' || echo '')
-
-        # Set outputs
-        echo "task_id=$TASK_ID" >> $GITHUB_OUTPUT
-        echo "status=$STATUS" >> $GITHUB_OUTPUT
-        echo "result=$RESULT" >> $GITHUB_OUTPUT 
+          python -m openhands.core.main -t "${{ inputs.prompt }}" 
