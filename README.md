@@ -11,6 +11,7 @@ Execute complex tasks using natural language prompts in your GitHub workflows.
 - Configurable runtime environment
 - Detailed logging and output capture
 - Support for additional environment variables
+- Docker-based execution with secure sandboxing
 
 ## Usage
 
@@ -25,16 +26,18 @@ jobs:
       - uses: actions/checkout@v3
       
       - name: Execute OpenHands Task
-        uses: namefi/openhands-action@v1
+        uses: xinbenlv/openhands-action@v1
         with:
           prompt: "Your natural language task description here"
           llm_api_key: ${{ secrets.LLM_API_KEY }}
           # Optional parameters
           llm_model: "anthropic/claude-3-7-sonnet-20250219"
           log_all_events: "true"
+
           additional_env: |
             {
-              "CUSTOM_VAR": "value"
+              "CUSTOM_VAR": "value",
+              "ANOTHER_VAR": "another_value"
             }
 ```
 
@@ -43,20 +46,29 @@ jobs:
 | Input | Required | Description | Default |
 |-------|----------|-------------|---------|
 | `prompt` | Yes | The natural language prompt or task to execute | - |
-| `llm_api_key` | Yes | API key for the LLM service | - |
+| `llm_api_key` | Yes | API key for the LLM service (e.g., Anthropic API key) | - |
 | `llm_model` | No | The LLM model to use | `anthropic/claude-3-7-sonnet-20250219` |
-| `log_all_events` | No | Enable detailed logging | `true` |
-| `runtime_image` | No | Docker image for runtime | `docker.all-hands.dev/all-hands-ai/runtime:0.32-nikolaik` |
-| `openhands_image` | No | Docker image for OpenHands | `docker.all-hands.dev/all-hands-ai/openhands:0.32` |
-| `additional_env` | No | JSON string of additional environment variables | `{}` |
+| `log_all_events` | No | Enable detailed logging of all events during task execution | `true` |
+| `runtime_image` | No | Docker image for the runtime environment | `docker.all-hands.dev/all-hands-ai/runtime:0.32-nikolaik` |
+| `openhands_image` | No | Docker image for the OpenHands AI service | `docker.all-hands.dev/all-hands-ai/openhands:0.32` |
+| `additional_env` | No | JSON string of additional environment variables to pass to the container | `{}` |
 
-## Outputs
+## Environment Variables
 
-| Output | Description |
-|--------|-------------|
-| `task_id` | The unique identifier of the executed task |
-| `status` | The final status of the task execution |
-| `result` | The result output from the task execution |
+The action supports passing additional environment variables through the `additional_env` input. These variables will be available in the container during task execution. Example:
+
+```json
+{
+  "CUSTOM_VAR": "value",
+  "ANOTHER_VAR": "another_value"
+}
+```
+
+## Security
+
+- The action uses Docker for secure sandboxing of task execution
+- API keys and sensitive information should be stored in GitHub Secrets
+- The runtime environment is isolated from the host system
 
 ## License
 
