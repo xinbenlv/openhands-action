@@ -1,0 +1,109 @@
+name: 'OpenHands AI Action'
+description: 'Run OpenHands AI tasks with customizable prompts and environment variables. OpenHands is an AI-powered automation platform that can execute complex tasks using natural language prompts.'
+author: 'Zainan Victor Zhou <zzn+openhands-action@zzn.im>'
+branding:
+  icon: 'activity'
+  color: 'purple'
+
+inputs:
+  prompt:
+    description: 'The natural language prompt or task to execute with OpenHands AI'
+    required: true
+  llm_model:
+    description: 'The LLM model to use for task execution'
+    required: false
+    default: 'anthropic/claude-3-7-sonnet-20250219'
+  llm_api_key:
+    description: 'API key for the LLM service (e.g., Anthropic API key)'
+    required: true
+  log_all_events:
+    description: 'Enable detailed logging of all events during task execution'
+    required: false
+    default: 'true'
+  runtime_image:
+    description: 'Docker image for the runtime environment'
+    required: false
+    default: 'docker.all-hands.dev/all-hands-ai/runtime:0.32-nikolaik'
+  openhands_image:
+    description: 'Docker image for the OpenHands AI service'
+    required: false
+    default: 'docker.all-hands.dev/all-hands-ai/openhands:0.32'
+  additional_env:
+    description: |
+      JSON string of additional environment variables to pass to the container.
+      Example:
+      {
+        "CUSTOM_VAR": "value",
+        "ANOTHER_VAR": "another_value"
+      }
+      These will be available in the container as environment variables.
+    required: false
+    default: '{}'
+
+outputs:
+  task_id:
+    description: 'The unique identifier of the executed task'
+    value: ${{ steps.openhands.outputs.task_id }}
+  status:
+    description: 'The final status of the task execution'
+    value: ${{ steps.openhands.outputs.status }}
+  result:
+    description: 'The result output from the task execution'
+    value: ${{ steps.openhands.outputs.result }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Docker
+      uses: docker/setup-buildx-action@v2
+
+    - name: Run OpenHands
+      id: openhands
+      shell: bash
+      env:
+        WORKSPACE_BASE: ${{ github.workspace }}
+        LLM_MODEL: ${{ inputs.llm_model }}
+        LLM_API_KEY: ${{ inputs.llm_api_key }}
+        LOG_ALL_EVENTS: ${{ inputs.log_all_events }}
+        ADDITIONAL_ENV: ${{ inputs.additional_env }}
+      run: |
+        # Parse additional environment variables from JSON
+        if [ "$ADDITIONAL_ENV" != "{}" ]; then
+          echo "Processing additional environment variables..."
+          EXTRA_ENV_ARGS=$(echo "$ADDITIONAL_ENV" | jq -r 'to_entries | map("-e " + .key + "=" + .value) | join(" ")')
+          echo "Additional environment variables: $EXTRA_ENV_ARGS"
+        else
+          EXTRA_ENV_ARGS=""
+          echo "No additional environment variables provided"
+        fi
+
+        # Run Docker command with all environment variables
+        echo "Running OpenHands with the following environment variables:"
+        echo "- LLM_MODEL: $LLM_MODEL"
+        echo "- LOG_ALL_EVENTS: $LOG_ALL_EVENTS"
+        echo "- Additional variables: $EXTRA_ENV_ARGS"
+
+        # Execute the task and capture output
+        OUTPUT=$(docker run -i \
+          --pull=always \
+          -e SANDBOX_RUNTIME_CONTAINER_IMAGE=${{ inputs.runtime_image }} \
+          -e WORKSPACE_MOUNT_PATH=$WORKSPACE_BASE \
+          -e LLM_API_KEY=$LLM_API_KEY \
+          -e LLM_MODEL=$LLM_MODEL \
+          -e LOG_ALL_EVENTS=$LOG_ALL_EVENTS \
+          $EXTRA_ENV_ARGS \
+          -v $WORKSPACE_BASE:/opt/workspace_base \
+          -v /var/run/docker.sock:/var/run/docker.sock \
+          --add-host host.docker.internal:host-gateway \
+          ${{ inputs.openhands_image }} \
+          python -m openhands.core.main -t "${{ inputs.prompt }}")
+
+        # Extract task information from output
+        TASK_ID=$(echo "$OUTPUT" | grep -oP 'Task ID: \K[^\s]+' || echo '')
+        STATUS=$(echo "$OUTPUT" | grep -oP 'Status: \K[^\s]+' || echo '')
+        RESULT=$(echo "$OUTPUT" | grep -oP 'Result: \K.*' || echo '')
+
+        # Set outputs
+        echo "task_id=$TASK_ID" >> $GITHUB_OUTPUT
+        echo "status=$STATUS" >> $GITHUB_OUTPUT
+        echo "result=$RESULT" >> $GITHUB_OUTPUT 
