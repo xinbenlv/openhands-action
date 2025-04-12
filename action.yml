@@ -1,5 +1,5 @@
 name: 'OpenHands AI Action'
-description: 'Run OpenHands AI tasks with customizable prompts and environment variables. OpenHands is an AI-powered automation platform that can execute complex tasks using natural language prompts.'
+description: 'Run OpenHands with human readable customizable prompts and environment variables.'
 author: 'Zainan Victor Zhou <zzn+openhands-action@zzn.im>'
 branding:
   icon: 'activity'
