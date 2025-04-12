@@ -1,0 +1,48 @@
+name: Test OpenHands AI Action
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'action.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'action.yml'
+  workflow_dispatch:
+
+jobs:
+  test-action:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Test OpenHands AI Action
+        id: openhands
+        uses: ./
+        with:
+          prompt: "What is 2+2?"
+          llm_api_key: ${{ secrets.LLM_API_KEY }}
+          log_all_events: "true"
+          additional_env: |
+            {
+              "TEST_VAR": "test_value"
+            }
+
+      - name: Verify outputs
+        run: |
+          echo "Task ID: ${{ steps.openhands.outputs.task_id }}"
+          echo "Status: ${{ steps.openhands.outputs.status }}"
+          echo "Result: ${{ steps.openhands.outputs.result }}"
+          
+          # Basic validation of outputs
+          if [ -z "${{ steps.openhands.outputs.task_id }}" ]; then
+            echo "Error: Task ID is empty"
+            exit 1
+          fi
+          
+          if [ -z "${{ steps.openhands.outputs.status }}" ]; then
+            echo "Error: Status is empty"
+            exit 1
+          fi 
