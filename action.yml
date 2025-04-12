@@ -63,6 +63,7 @@ runs:
         LLM_API_KEY: ${{ inputs.llm_api_key }}
         LOG_ALL_EVENTS: ${{ inputs.log_all_events }}
         ADDITIONAL_ENV: ${{ inputs.additional_env }}
+        PROMPT: ${{ inputs.prompt }}
       run: |
         # Parse additional environment variables from JSON
         if [ "$ADDITIONAL_ENV" != "{}" ]; then
@@ -79,6 +80,7 @@ runs:
         echo "- LLM_MODEL: $LLM_MODEL"
         echo "- LOG_ALL_EVENTS: $LOG_ALL_EVENTS"
         echo "- Additional variables: $EXTRA_ENV_ARGS"
+        echo "- Prompt: $PROMPT"
 
         # Execute the task
         docker run -i \
@@ -93,4 +95,4 @@ runs:
           -v /var/run/docker.sock:/var/run/docker.sock \
           --add-host host.docker.internal:host-gateway \
           ${{ inputs.openhands_image }} \
-          python -m openhands.core.main -t "${{ inputs.prompt }}" 
+          python -m openhands.core.main -t "${PROMPT}" 
