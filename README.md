@@ -1,5 +1,7 @@
 # OpenHands AI Action
 
+[![CI](https://github.com/xinbenlv/openhands-action/actions/workflows/test-action.yml/badge.svg?branch=main)](https://github.com/xinbenlv/openhands-action/actions/workflows/test-action.yml?query=branch%3Amain)
+
 A GitHub Action that enables AI-powered task automation using headless mode of 
 [OpenHands](https://github.com/All-Hands-AI/OpenHands). 
 Execute complex tasks using natural language prompts in your GitHub workflows.
@@ -76,4 +78,4 @@ MIT License
 
 ## Support
 
-For support, please open an issue in the [GitHub repository](https://github.com/namefi/openhands-action).
+For support, please open an issue in the [GitHub repository](https://github.com/xinbenlv/openhands-action).
