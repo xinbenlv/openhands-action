@@ -30,7 +30,7 @@ jobs:
       - uses: actions/checkout@v3
       
       - name: Execute OpenHands Task
-        uses: xinbenlv/openhands-action@v1
+        uses: xinbenlv/openhands-action@v1.0.1-rc3
         with:
           prompt: "Your natural language task description here"
           llm_api_key: ${{ secrets.LLM_API_KEY }}
