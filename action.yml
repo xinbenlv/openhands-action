@@ -114,4 +114,4 @@ runs:
           -v /var/run/docker.sock:/var/run/docker.sock \
           --add-host host.docker.internal:host-gateway \
           ${{ inputs.openhands_image }} \
-          python -m openhands.core.main -t "${PROMPT}" $CLI_ARGS 
+          python -m openhands.core.main -t "Run export GITHUB_TOKEN=$GITHUB_TOKEN and then ${PROMPT}" $CLI_ARGS 
