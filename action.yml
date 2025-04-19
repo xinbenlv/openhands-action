@@ -43,6 +43,10 @@ inputs:
     description: 'Additional CLI arguments to pass to the OpenHands agent'
     required: false
     default: ''
+  github_token:
+    description: 'GitHub token for API access (will be passed as GITHUB_TOKEN env var)'
+    required: false
+    default: ''
 
 runs:
   using: 'composite'
@@ -69,6 +73,7 @@ runs:
         ADDITIONAL_ENV: ${{ inputs.additional_env }}
         PROMPT: ${{ inputs.prompt }}
         CLI_ARGS: ${{ inputs.cli_args }}
+        GITHUB_TOKEN: ${{ inputs.github_token }}
       run: |
         # Parse additional environment variables from JSON
         if [ "$ADDITIONAL_ENV" != "{}" ]; then
@@ -78,6 +83,12 @@ runs:
         else
           EXTRA_ENV_ARGS=""
           echo "No additional environment variables provided"
+        fi
+
+        # Add GITHUB_TOKEN to EXTRA_ENV_ARGS if provided
+        if [ ! -z "$GITHUB_TOKEN" ]; then
+          EXTRA_ENV_ARGS="$EXTRA_ENV_ARGS -e GITHUB_TOKEN=$GITHUB_TOKEN"
+          echo "GITHUB_TOKEN will be passed to the container."
         fi
 
         # Run Docker command with all environment variables
