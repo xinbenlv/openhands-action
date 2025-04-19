@@ -17,7 +17,7 @@ inputs:
 
 # PR Review Task
 
-This task guides you through reviewing pull requests in namefi-astra according to project standards.
+This task guides you through reviewing pull requests in ${{ SELECTED_REPO }} according to project standards.
 
 ## Finding file changes
 When reviewing file changes, instead of diffing with default branch such as `main` please diff against the base branch of the PR.
