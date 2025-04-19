@@ -24,6 +24,18 @@ jobs:
           name: pr-diff
           path: pr_diff.txt
 
+      - name: Validate GitHub Token
+        env:
+          REVIEW_BOT_GITHUB_TOKEN: ${{ secrets.REVIEW_BOT_GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          if [ -z "$REVIEW_BOT_GITHUB_TOKEN" ]; then
+            echo "::error::REVIEW_BOT_GITHUB_TOKEN secret is not set or is empty. Please configure it in repository/organization secrets."
+            exit 1
+          else
+            echo "REVIEW_BOT_GITHUB_TOKEN is set."
+          fi
+
       - name: Automatically Review Pull Request
         id: openhands_valid
         uses: ./
