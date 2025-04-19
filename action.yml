@@ -89,13 +89,15 @@ runs:
         if [ ! -z "$GITHUB_TOKEN" ]; then
           EXTRA_ENV_ARGS="$EXTRA_ENV_ARGS -e GITHUB_TOKEN=$GITHUB_TOKEN"
           echo "GITHUB_TOKEN will be passed to the container."
+        else
+          echo "GITHUB_TOKEN was not provided or is empty, not adding to EXTRA_ENV_ARGS."
         fi
 
         # Run Docker command with all environment variables
+        echo "Final EXTRA_ENV_ARGS (including GITHUB_TOKEN if set): $EXTRA_ENV_ARGS"
         echo "Running OpenHands with the following environment variables:"
         echo "- LLM_MODEL: $LLM_MODEL"
         echo "- LOG_ALL_EVENTS: $LOG_ALL_EVENTS"
-        echo "- Additional variables: $EXTRA_ENV_ARGS"
         echo "- Prompt: $PROMPT"
         echo "- CLI Arguments: $CLI_ARGS"
 
