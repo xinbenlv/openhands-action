@@ -19,7 +19,7 @@ jobs:
         run: git diff ${{ github.event.pull_request.base.sha }} ${{ github.sha }} > pr_diff.txt
 
       - name: Upload PR Diff Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pr-diff
           path: pr_diff.txt
