@@ -39,6 +39,10 @@ inputs:
       These will be available in the container as environment variables.
     required: false
     default: '{}'
+  cli_args:
+    description: 'Additional CLI arguments to pass to the OpenHands agent'
+    required: false
+    default: ''
 
 runs:
   using: 'composite'
@@ -64,6 +68,7 @@ runs:
         LOG_ALL_EVENTS: ${{ inputs.log_all_events }}
         ADDITIONAL_ENV: ${{ inputs.additional_env }}
         PROMPT: ${{ inputs.prompt }}
+        CLI_ARGS: ${{ inputs.cli_args }}
       run: |
         # Parse additional environment variables from JSON
         if [ "$ADDITIONAL_ENV" != "{}" ]; then
@@ -81,6 +86,7 @@ runs:
         echo "- LOG_ALL_EVENTS: $LOG_ALL_EVENTS"
         echo "- Additional variables: $EXTRA_ENV_ARGS"
         echo "- Prompt: $PROMPT"
+        echo "- CLI Arguments: $CLI_ARGS"
 
         # Execute the task
         docker run -i \
@@ -95,4 +101,4 @@ runs:
           -v /var/run/docker.sock:/var/run/docker.sock \
           --add-host host.docker.internal:host-gateway \
           ${{ inputs.openhands_image }} \
-          python -m openhands.core.main -t "${PROMPT}" 
+          python -m openhands.core.main -t "${PROMPT}" $CLI_ARGS 

@@ -24,4 +24,17 @@ jobs:
           name: pr-diff
           path: pr_diff.txt
 
+      - name: Automatically Review Pull Request
+        id: openhands_valid
+        uses: ./
+        with:
+          prompt: Review the pull request using the diff found in `pr_diff.txt` and provide a summary of the changes. Ensure the changes align with the repository's goals.
+          llm_api_key: ${{ secrets.LLM_API_KEY }}
+          log_all_events: "true"
+          github_token: ${{ secrets.MY_GITHUB_TOKEN }}
+          additional_env: |
+            {
+              "SELECTED_REPO": "${{ github.repository }}"
+            }
+
       
