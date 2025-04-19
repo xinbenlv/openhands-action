@@ -1,4 +1,4 @@
-name: Test OpenHands AI Action
+name: Review Pull Request
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
       - 'action.yml'
 
 jobs:
-  test-action:
+  review-pr:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -19,19 +19,38 @@ jobs:
         run: git diff ${{ github.event.pull_request.base.sha }} ${{ github.sha }} > pr_diff.txt
 
       - name: Upload PR Diff Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pr-diff
           path: pr_diff.txt
+
+      - name: Validate GitHub Token
+        env:
+          REVIEW_BOT_GITHUB_TOKEN: ${{ secrets.REVIEW_BOT_GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          if [ -z "$REVIEW_BOT_GITHUB_TOKEN" ]; then
+            echo "::error::REVIEW_BOT_GITHUB_TOKEN secret is not set or is empty. Please configure it in repository/organization secrets."
+            exit 1
+          else
+            echo "REVIEW_BOT_GITHUB_TOKEN is set."
+          fi
 
       - name: Automatically Review Pull Request
         id: openhands_valid
         uses: ./
         with:
-          prompt: Review the pull request using the diff found in `pr_diff.txt` and provide a summary of the changes. Ensure the changes align with the repository's goals.
+          prompt: |
+            You are a coding expert that reviews pull requests and provides feedback.
+            Please execute the following steps:
+            1. Verify that the environment variable GITHUB_TOKEN is set, if not stop and report an error.
+            2. Review the current pull request ${{ github.event.pull_request.number }}
+            3. if the PR needs code changes,send an overall PR review comment and each individual line-level comment to Github using Github REST API.
+               or else if the PR is overall good without needing any code changes, 
+               just send an overall comment and a PR approval to Github using Github REST API.
           llm_api_key: ${{ secrets.LLM_API_KEY }}
           log_all_events: "true"
-          github_token: ${{ secrets.MY_GITHUB_TOKEN }}
+          github_token: ${{ secrets.REVIEW_BOT_GITHUB_TOKEN }}
           additional_env: |
             {
               "SELECTED_REPO": "${{ github.repository }}"
