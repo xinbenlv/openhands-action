@@ -1,4 +1,4 @@
-name: Test OpenHands AI Action
+name: Review Pull Request
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
       - 'action.yml'
 
 jobs:
-  test-action:
+  review-pr:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -28,7 +28,9 @@ jobs:
         id: openhands_valid
         uses: ./
         with:
-          prompt: Review the pull request using the diff found in `pr_diff.txt` and provide a summary of the changes. Ensure the changes align with the repository's goals.
+          prompt: |
+            Read .openhands/microagents/knowledge/review_pr.md
+            Review the current pull request ${{ github.event.pull_request.number }}
           llm_api_key: ${{ secrets.LLM_API_KEY }}
           log_all_events: "true"
           github_token: ${{ secrets.MY_GITHUB_TOKEN }}
