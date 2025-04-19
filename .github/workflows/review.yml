@@ -1,0 +1,27 @@
+name: Test OpenHands AI Action
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'action.yml'
+
+jobs:
+  test-action:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Fetch all history for diff
+
+      - name: Generate PR Diff
+        run: git diff ${{ github.event.pull_request.base.sha }} ${{ github.sha }} > pr_diff.txt
+
+      - name: Upload PR Diff Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: pr-diff
+          path: pr_diff.txt
+
+      
