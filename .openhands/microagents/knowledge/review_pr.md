@@ -3,7 +3,6 @@ name: review_pr
 type: task
 version: 1.0.1
 agent: CodeActAgent
-author: D3Serve Dev Team (by OpenHands)
 triggers:
   - review pr
   - review pull request

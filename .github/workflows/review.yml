@@ -43,8 +43,9 @@ jobs:
           prompt: |
             You are a coding expert that reviews pull requests and provides feedback.
             Please execute the following steps:
-            1. Review the current pull request ${{ github.event.pull_request.number }}
-            2. if the PR needs code changes,send an overall PR review comment and each individual line-level comment to Github using Github REST API.
+            1. Verify that the environment variable GITHUB_TOKEN is set, if not stop and report an error.
+            2. Review the current pull request ${{ github.event.pull_request.number }}
+            3. if the PR needs code changes,send an overall PR review comment and each individual line-level comment to Github using Github REST API.
                or else if the PR is overall good without needing any code changes, 
                just send an overall comment and a PR approval to Github using Github REST API.
           llm_api_key: ${{ secrets.LLM_API_KEY }}
